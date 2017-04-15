@@ -59,7 +59,8 @@ import logging
 import random
 from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
 from Crawler.settings import PROXIES, USER_AGENT_LIST
-from
+
+
 class MyCustomDownloaderMiddleware(UserAgentMiddleware):
 
     def __init__(self, user_agent=''):
@@ -74,6 +75,6 @@ class MyCustomDownloaderMiddleware(UserAgentMiddleware):
 
             request.headers.setdefault('User-Agent', useragent)
 
-class IngoreRequestMiddleware(object):
-    def __init__(self):
-        self.bloomfilter =
+# class IngoreRequestMiddleware(object):
+#     def __init__(self):
+#         self.bloomfilter =
