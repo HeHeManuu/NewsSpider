@@ -9,18 +9,21 @@ from Crawler.settings import *
 import re
 import os
 import pymongo
+from Crawler.util import RedisFactory
 
 
 class CrawlerPipeline(object):
     def __init__(self):
         self.file = open('items.jl', 'w', encoding='utf-8')
         self.url_seen = set()
+        self.redis = RedisFactory('url')
 
     def process_item(self, item, spider):
         if item['url'] in self.url_seen:
             raise print("Duplicate item found: %s" % item)
         else:
             self.url_seen.add(item['url'])
+            # self.redis.insert(item['url'])
             line = json.dumps(dict(item), ensure_ascii=False)+"\n"
             self.file.write(line)
             # 写入文档中

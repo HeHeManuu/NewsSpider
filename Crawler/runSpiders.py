@@ -7,5 +7,6 @@ from scrapy.utils.project import get_project_settings
 process = CrawlerProcess(get_project_settings())
 
 process.crawl('people_news')
-# process.crawl('wyxw_news')
+process.crawl('wyxw_news')
+process.crawl('xinhua_news')
 process.start()

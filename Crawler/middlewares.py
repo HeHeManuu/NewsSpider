@@ -55,26 +55,35 @@ class CrawlerSpiderMiddleware(object):
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
 
+
 import logging
 import random
 from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
 from Crawler.settings import PROXIES, USER_AGENT_LIST
+from Crawler.util import RedisFactory
+from scrapy.exceptions import IgnoreRequest
 
 
 class MyCustomDownloaderMiddleware(UserAgentMiddleware):
-
     def __init__(self, user_agent=''):
         self.user_agent = user_agent
 
     def process_request(self, request, spider):
         useragent = random.choice(USER_AGENT_LIST)
         if useragent:
-
-            logger = logging.getLogger('UserAgent')
-            logging.debug('Current UserAgent:%s' % useragent)
-
+            # logger = logging.getLogger('UserAgent')
+            # logging.debug('Current UserAgent:%s' % useragent)
             request.headers.setdefault('User-Agent', useragent)
 
-# class IngoreRequestMiddleware(object):
-#     def __init__(self):
-#         self.bloomfilter =
+
+class IngoreRequestMiddleware(object):
+    def __init__(self):
+        self.redis = RedisFactory('url')
+
+    def process_request(self, request, spider):
+        if self.redis.isExit(request.url):
+            logger = logging.getLogger('IgnoreRequest')
+            logging.debug("IgnoreRequest : %s" % request.url)
+            raise IgnoreRequest("IgnoreRequest : %s" % request.url)
+        else:
+            return None

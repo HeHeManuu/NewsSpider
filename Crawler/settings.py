@@ -23,6 +23,8 @@ DEPTH_PRIORITY = 2
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
 
+REDIRECT_ENABLED = False
+
 # LOG_LEVEL = 'INFO'
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -62,6 +64,7 @@ RETRY_ENABLED = False
 # See http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
    'Crawler.middlewares.MyCustomDownloaderMiddleware': 543,
+   'Crawler.middlewares.IngoreRequestMiddleware': 541,
    'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
 }
 
@@ -145,9 +148,10 @@ PROXIES = [
     {'ip_port': '122.224.249.122:8088', 'user_pass': ''},
 ]
 
-END_DAY = 50
+END_DAY = 8
 # 爬取新闻的×天前的相对时间，默认当天凌晨。也就是爬取当天凌晨的×天前的新闻
 END_NOW = datetime.datetime.combine(datetime.date.today(), datetime.time.min)  # 当天0点
 # END_NOW = datetime.datetime.now() #当时
 NOW = datetime.datetime.now()  # 现在时间的格式
 SAVE_PATH = "H:\DATA\\"
+# 新华网，人民网，新浪，网易 搜狐，中新闻网

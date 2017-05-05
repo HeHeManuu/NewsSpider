@@ -1,5 +1,5 @@
 from scrapy.spiders import CrawlSpider
-from scrapy.contrib.spiders import Rule
+from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.selector import Selector
 from scrapy.http import Request
@@ -7,8 +7,6 @@ from Crawler.items import NewsItem
 from Crawler.util import judge_time_news
 from Crawler.settings import *
 import re
-import scrapy
-from bs4 import BeautifulSoup
 
 
 def get_163_allow_url():
