@@ -30,4 +30,5 @@ class NewsItem(scrapy.Item):
     url = scrapy.Field()
     content = scrapy.Field()
     source = scrapy.Field()
+    classification = scrapy.Field()
     pass
