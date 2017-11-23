@@ -34,29 +34,22 @@ def get_people_allow_url():
 class PeopleNewsSpider(CrawlSpider):
     name = "people_news"
     allowed_domains = ["politics.people.com.cn",
-                       "world.people.com.cn",
                        "finance.people.com.cn",
                        "military.people.com.cn",
-                       "opinion.people.com.cn",
-                       "legal.people.com.cn",
-                       "society.people.com.cn",
                        "edu.people.com.cn",
-                       "house.people.com.cn",
-                       "www.people.com.cn"
+                       'culture.people.com.cn',
+                       'scitech.people.com.cn',
+                       'sports.people.com.cn'
                        ]
 
     start_urls = [
         'http://people.com.cn',
         "http://politics.people.com.cn",
-        "http://world.people.com.cn",
         "http://finance.people.com.cn",
-        "http://military.people.com.cn",
-        "http://opinion.people.com.cn",
-        "http://legal.people.com.cn",
-        "http://society.people.com.cn",
         "http://edu.people.com.cn",
-        "http://house.people.com.cn",
-        "http://www.people.com.cn"
+        "http://sports.people.com.cn",
+        'http://culture.people.com.cn',
+        "http://scitech.people.com.cn"
     ]
 
     rules = (

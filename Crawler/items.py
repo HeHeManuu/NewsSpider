@@ -32,3 +32,11 @@ class NewsItem(scrapy.Item):
     source = scrapy.Field()
     classification = scrapy.Field()
     pass
+
+
+class WeiboItem(scrapy.Item):
+    author = scrapy.Field()
+    content = scrapy.Field()
+    num_forwarding = scrapy.Field()
+    num_comment = scrapy.Field()
+    num_likes = scrapy.Field()

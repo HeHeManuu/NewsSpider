@@ -50,9 +50,9 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 16
 #   'Accept-Language': 'en',
 #}
 # 设置下载ITEM数量后关闭
-CLOSESPIDER_ITEMCOUNT = 18000
+CLOSESPIDER_ITEMCOUNT = 50000
 # 设置指定返回响应数量后停止
-CLOSESPIDER_PAGECOUNT = 24000
+CLOSESPIDER_PAGECOUNT = 60000
 # CLOSESPIDER_ERRORCOUNT
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
@@ -148,10 +148,10 @@ PROXIES = [
     {'ip_port': '122.224.249.122:8088', 'user_pass': ''},
 ]
 
-END_DAY = 8
+END_DAY = 45
 # 爬取新闻的×天前的相对时间，默认当天凌晨。也就是爬取当天凌晨的×天前的新闻
 END_NOW = datetime.datetime.combine(datetime.date.today(), datetime.time.min)  # 当天0点
 # END_NOW = datetime.datetime.now() #当时
 NOW = datetime.datetime.now()  # 现在时间的格式
-SAVE_PATH = "H:\DATA\\"
+SAVE_PATH = "H:\DATA\DATA\\"
 # 新华网，人民网，新浪，网易 搜狐，中新闻网
