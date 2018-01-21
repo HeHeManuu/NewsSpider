@@ -34,17 +34,16 @@ def get_xin_allow_url():
 class XinHuaNewsSpider(CrawlSpider):
     name = "xinhua_news"
     allowed_domains = [
-                       "news.xinhuanet.com",
-                       "news.cn"
-                       ]
+        "news.xinhuanet.com", "www.xinhuanet.com",
+        "education.news.cn", "sports.xinhuanet.com"
+    ]
 
     start_urls = [
         'http://news.xinhuanet.com',
-        'http://news.cn',
         'http://xinhuanet.com'
     ]
     deny_urls = [
-        r'.*?news.xinhuanet.com.*?/\d{4}-\d{2}/\d{2}/.*?',
+        r'.*?xinhuanet.com.*?/\d{4}-\d{2}/\d{2}/.*?',
         r'.*?.photo.*?',
         r'.*?.video.*?',
         r'.*?.comments.*?',
@@ -70,7 +69,7 @@ class XinHuaNewsSpider(CrawlSpider):
     def parse_item(response):
         sel = Selector(response)
         url = response.request.url
-        if re.match(r'.*?xinhuanet.com.*?/\d{4}-\d{2}/\d{2}/.*?', url) :
+        if re.match(r'.*?xinhuanet.com.*?/\d{4}-\d{2}/\d{2}/.*?', url):
             content = response.xpath('//*[@id="p-detail"]//p//text()').extract()
             if content:
                 item = NewsItem(

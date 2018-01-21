@@ -15,9 +15,11 @@ def judge_time_news(item, end_day=END_DAY):
     if news_time:
         if '年' in news_time:
             struct_time = datetime.datetime.strptime(news_time, "%Y年%m月%d日%H:%M")
+        elif news_time.count(':') == 1:
+            struct_time = datetime.datetime.strptime(news_time, "%Y-%m-%d %H:%M")
         else:
             struct_time = datetime.datetime.strptime(news_time, "%Y-%m-%d %H:%M:%S")
-        subtime = (NOW-struct_time).days
+        subtime = (NOW - struct_time).days
         if subtime < end_day:
             return item
         else:
@@ -32,6 +34,7 @@ class RedisFactory(object):
 
     def insert(self, element):
         self.Redis.sadd(self.name, element)
+        print(self.Redis.scard(self.name))
 
     def isExit(self, element):
         return self.Redis.sismember(self.name, element)
@@ -40,12 +43,11 @@ class RedisFactory(object):
         self.Redis.smembers(self.name)
 
     def flush(self):
-        self.Redis.flush()
+        self.Redis.flushall()
 
 
-# if __name__=="__main__":
-#     fa = RedisFactory("url")
-#     for tt in fa.show():
-#         print(tt)
-
-
+if __name__ == "__main__":
+    fa = RedisFactory("url")
+    print(fa.Redis.scard(fa.name))
+    # fa.flush()
+    print(fa.Redis.scard(fa.name))

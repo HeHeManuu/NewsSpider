@@ -34,46 +34,61 @@ def get_sohu_allow_url():
 class SohuNewsSpider(CrawlSpider):
     name = "sohu_news"
     allowed_domains = [
-                       "news.sohu.com",
-                       "business.sohu.com"
-                       ]
+        "www.sohu.com",
+        "news.sohu.com",
+        "business.sohu.com",
+        "sports.sohu.com",
+        "learning.sohu.com",
+        "it.sohu.com"
+    ]
 
     start_urls = [
+        'http://www.sohu.com',
         # 'http://news.sohu.com',
         # 'http://business.sohu.com',
-        # 'http://news.sohu.com/scroll/'
-        'http://news.sohu.com/20170425/n490590211.shtml'
+        # 'http://news.sohu.com/scroll/',
+        # "http://sports.sohu.com",
+        # "http://learning.sohu.com",
+        # "http://it.sohu.com"
     ]
     deny_urls = [
-        r'.*?news.sohu.com.*?/\d{4}\d{2}\d{2}/.*?',
-        r'.*?business.sohu.com.*?/\d{4}\d{2}\d{2}/.*?',
+        r'.*?sohu.com/a/.*?',
         r'.*?.pinglun.*?',
         r'.*?.wurenji_b.*?',
-        r'.*?.shuzi.*?'
+        r'.*?.shuzi.*?',
+        r'.*?picture.*?'
+
     ]
     deny_urls_news = [
         r'.*?.pinglun.*?',
         r'.*?.wurenji_b.*?',
-        r'.*?.shuzi.*?'
+        r'.*?.shuzi.*?',
+        r'.*?picture.*?'
     ]
     deny_domains = [
-        'tv.sohu.com'
+        'tv.sohu.com',
+        'auto.sohu.com',
+        'soyule.sohu.com',
+        'game.sohu.com'
     ]
 
     rules = (
-        Rule(LinkExtractor(allow=".*?sohu.com*?", deny=deny_urls, deny_domains=deny_domains), follow=True),
-        Rule(LinkExtractor(allow=get_sohu_allow_url(), deny=deny_urls_news, deny_domains=deny_domains), callback="parse_item", follow=True)
+        Rule(LinkExtractor(allow=".*?sohu.com.*?", deny=deny_urls),
+             follow=True),
+        Rule(LinkExtractor(allow=".*?sohu.com/a/.*?", deny=deny_urls_news,deny_domains=deny_domains),
+             callback="parse_item", follow=True)
     )
 
     @staticmethod
     def parse_item(response):
         sel = Selector(response)
         url = response.request.url
-        if re.match(r'.*?sohu.com.*?/\d{4}\d{2}\d{2}/.*?', url):
+        if re.match(r'.*?sohu.com.*?/\d+/.*?', url):
             content = response.xpath('//*[@itemprop="articleBody"]//p//text()').extract()
             # 有的段落并不是在p标签下，所以
             if len(content) < 3:
-                content = response.xpath('//*[@itemprop="articleBody"]//p//text() | //*[@id="contentText"]//div/text()').extract()
+                content = response.xpath(
+                    '//*[@itemprop="articleBody"]//p//text() | //*[@id="contentText"]//div/text()').extract()
 
             publish_time = sel.re(r'\d{4}-\d{2}-\d{2} {0,1}\d{2}:\d{2}:\d{2}')[0]
             if content:

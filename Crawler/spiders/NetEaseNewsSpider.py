@@ -3,10 +3,12 @@ from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.selector import Selector
 from scrapy.http import Request
-from Crawler.items import NewsItem
+from Crawler.items import NewsItem, CommentItem
 from Crawler.util import judge_time_news
 from Crawler.settings import *
 import re
+import requests
+import json
 
 
 def get_163_allow_url():
@@ -33,12 +35,17 @@ def get_163_allow_url():
 
 class NewsSpider(CrawlSpider):
     name = "wyxw_news"
-    allowed_domains = ["news.163.com"]
+    allowed_domains = ["news.163.com", "sports.163.com", "money.163.com", 'edu.163.com', "tech.163.com", "war.163.com"]
 
     start_urls = [
-                  'http://news.163.com',
-                  'http://news.163.com/special/0001386F/rank_news.html'
-                  ]
+        'http://news.163.com',
+        'http://news.163.com/special/0001386F/rank_news.html',
+        "http://money.163.com/",
+        "http://sports.163.com",
+        "http://tech.163.com/",
+        "http://edu.163.com/",
+        "http://war.163.com/"
+    ]
     deny_urls = [
         r'.*?news.163.com.*?/\d{2}/\d{4}/.*?',
         r'.*?.photo.*?',
@@ -57,12 +64,10 @@ class NewsSpider(CrawlSpider):
         Rule(LinkExtractor(allow=get_163_allow_url(), deny_domains=deny_domain), callback="parse_item", follow=True)
     )
 
-    @staticmethod
-    def parse_item(response):
+    def parse_item(self, response):
         sel = Selector(response)
         url = response.request.url
-        news_urls = sel.css('a::attr(href)').extract()
-        if re.match(r'.*?news.163.com.*?/\d+/\d+/.*?', response.request.url):
+        if re.match(r'.*?163.com.*?/\d+/\d+/.*?', url):
             content = response.xpath('//*[@id="endText"]//p//text()').extract()
             need_removes = response.xpath('//*[@id="endText"]//p//style/text()').extract()
             # 移除原标题
@@ -96,4 +101,37 @@ class NewsSpider(CrawlSpider):
                 )
                 item = judge_time_news(item)
                 if item:
+                    comment = self.get_comments(url)
                     yield item
+                    if comment:
+                        yield comment
+
+    def get_comments(self, news_url):
+        s1 = 'http://comment.news.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/'
+        s2 = '/comments/newList?offset='
+        s3 = '&limit='
+        news_id = news_url.split('/')[-1].split('.')[0]
+        s = s1 + news_id + s2
+
+        all_comments = dict()
+
+        offset, limit = 0, 40
+        i = 0
+        while offset < limit:
+            url = s + str(offset) + s3 + str(40)
+            res = requests.get(url=url).text
+            if res is None:
+                break
+            all_comments[str(i)] = res
+            i = i + 1
+            if offset == 0:
+                data = json.loads(res)
+                limit = data['newListSize']
+            offset += 40
+        if len(all_comments) == 0 or limit == 0:
+            return None
+        comment_item = CommentItem(
+            url=news_url,
+            comments=all_comments
+        )
+        return comment_item

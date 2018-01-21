@@ -33,23 +33,24 @@ def get_people_allow_url():
 
 class PeopleNewsSpider(CrawlSpider):
     name = "people_news"
-    allowed_domains = ["politics.people.com.cn",
-                       "finance.people.com.cn",
-                       "military.people.com.cn",
-                       "edu.people.com.cn",
-                       'culture.people.com.cn',
-                       'scitech.people.com.cn',
-                       'sports.people.com.cn'
-                       ]
+    allowed_domains = [
+        "news.people.com.cn", "politics.people.com.cn",
+        "finance.people.com.cn",
+        "military.people.com.cn",
+        "edu.people.com.cn",
+        'scitech.people.com.cn',
+        'sports.people.com.cn'
+    ]
 
     start_urls = [
-        'http://people.com.cn',
-        "http://politics.people.com.cn",
-        "http://finance.people.com.cn",
-        "http://edu.people.com.cn",
-        "http://sports.people.com.cn",
-        'http://culture.people.com.cn',
-        "http://scitech.people.com.cn"
+        # 'http://people.com.cn',
+        # "http://politics.people.com.cn",
+        # "http://finance.people.com.cn",
+        # "http://edu.people.com.cn",
+        # "http://sports.people.com.cn",
+        # "http://scitech.people.com.cn",
+        # "http://news.people.com.cn"
+        'http://sports.people.com.cn/n1/2017/1218/c413595-29712245-5.html'
     ]
 
     rules = (
@@ -61,7 +62,8 @@ class PeopleNewsSpider(CrawlSpider):
     def parse_item(response):
         sel = Selector(response)
         url = response.request.url
-        if re.match(r'.*?people.com.cn.*?/\d+/\d+/.*?', url) and 'BIG' not in url:
+        news_label = url.split('/')[-1].split('.')[0]
+        if re.match(r'.*?people.com.cn.*?/\d+/\d+/.*?', url) and 'BIG' not in url and not re.match(r'.*?-\d$', news_label):
             content = response.xpath('//*[@id="rwb_zw"]/p/text() | //*[@id="rwb_zw"]/p/strong/text()').extract()
             if content:
                 item = NewsItem(

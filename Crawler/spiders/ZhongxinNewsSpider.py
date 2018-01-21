@@ -34,12 +34,15 @@ def get_zhong_allow_url():
 class ZhongxinNewsSpider(CrawlSpider):
     name = "zhongxin_news"
     allowed_domains = [
-        "chinanews.com"
+        "www.chinanews.com",
+        "sports.chinanews.com",
+        "finance.chinanews.com"
     ]
 
     start_urls = [
         'http://www.chinanews.com/importnews.html',
-        'http://chinanews.com'
+        'http://chinanews.com', "http://www.chinanews.com/scroll-news/news1.html",
+        "http://finance.chinanews.com/"
     ]
     deny_urls = [
         r'.*?chinanews.com.*?/\d{4}/\d{2}-\d{2}/.*?',
@@ -50,7 +53,8 @@ class ZhongxinNewsSpider(CrawlSpider):
     deny_urls_news = [
         r'.*?.shipin.*?',
         r'.*?.piaowu.*?',
-        r'.*?.kong.*?'
+        r'.*?.kong.*?',
+        r'.*?chinanews.com/tp.*?'
     ]
     deny_domains = [
         'photo.chinanews.com',
