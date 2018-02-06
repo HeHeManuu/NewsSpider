@@ -38,8 +38,12 @@ class NewsItem(scrapy.Item):
 
 
 class CommentItem(scrapy.Item):
-    """评论相关"""
+    """评论相关
+    comments { content, vote, against, location, time, nick }
+    """
     url = Field()
+    sitename = Field()
+    num_comments = Field()
     comments = Field()
     pass
 

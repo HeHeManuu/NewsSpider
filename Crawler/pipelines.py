@@ -9,7 +9,7 @@ from Crawler.settings import *
 import re
 import os
 import pymongo
-from Crawler.util import RedisFactory
+from Crawler.utils import RedisFactory
 from Crawler.items import TweetsItem, InformationItem, FollowsItem, FansItem
 from Crawler.items import NewsItem, CommentItem
 
@@ -18,7 +18,7 @@ class CrawlerPipeline(object):
     def __init__(self):
         # self.file = open('items.jl', 'w', encoding='utf-8')
         self.url_seen = set()
-        self.redis = RedisFactory('url')
+        self.redis = RedisFactory(REDIS_NAME)
 
     def process_item(self, item, spider):
         if isinstance(item, NewsItem):
@@ -47,7 +47,7 @@ class CrawlerPipeline(object):
                 file1 = open(path + filename, 'w', encoding='utf-8')
                 file1.write(line)
                 file1.close()
-            return item
+        return item
 
     def close_spider(self, spider):
         self.file.close()
@@ -106,7 +106,10 @@ class MongoPipeline(object):
 
     def process_item(self, item, spider):
         if isinstance(item, NewsItem):
-            self.db[self.db_name].insert(dict(item))
+            key = {'url': item['url']}
+            self.db[self.db_name].update(key, dict(item), upsert=True)
             return item
         elif isinstance(item, CommentItem):
-            self.db[self.db_comment].insert(dict(item))
+            key = {'url': item['url']}
+            self.db[self.db_comment].update(key, dict(item), upsert=True)
+            return 'comments of ' + item['url']

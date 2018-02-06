@@ -12,20 +12,20 @@ import datetime
 
 BOT_NAME = 'Crawler'
 
-SPIDER_MODULES = ['Crawler.spiders', 'Crawler.weiboSpider']
+SPIDER_MODULES = ['Crawler.spiders']
 # NEWSPIDER_MODULE = 'Crawler.spiders'
 
 
-DEPTH_LIMIT = 6
-DEPTH_PRIORITY = 2
+DEPTH_LIMIT = 9
+DEPTH_PRIORITY = 3
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'Crawler (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
 
-REDIRECT_ENABLED = False
-
+REDIRECT_ENABLED = True
+# HTTPERROR_ALLOWED_CODES = [403]
 # LOG_LEVEL = 'INFO'
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 # CONCURRENT_REQUESTS = 32
@@ -40,7 +40,7 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 16
 # CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-# COOKIES_ENABLED = False
+COOKIES_ENABLED = True
 
 # Disable Telnet Console (enabled by default)
 # TELNETCONSOLE_ENABLED = False
@@ -154,10 +154,17 @@ PROXIES = [
     {'ip_port': '122.224.249.122:8088', 'user_pass': ''},
 ]
 
-END_DAY = 2
+END_DAY = 20
 # 爬取新闻的×天前的相对时间，默认当天凌晨。也就是爬取当天凌晨的×天前的新闻
 END_NOW = datetime.datetime.combine(datetime.date.today(), datetime.time.min)  # 当天0点
 # END_NOW = datetime.datetime.now() #当时
 NOW = datetime.datetime.now()  # 现在时间的格式
 SAVE_PATH = "H:\DATA\DATA\\"
 # 新华网，人民网，新浪，网易，腾讯网，中新闻网
+
+GET_COMMENTS = True
+# comments { content, vote, against, location, time }
+# url 和 url2 直接替换进行
+REDIS_NAME = 'url'
+
+

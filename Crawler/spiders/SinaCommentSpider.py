@@ -5,8 +5,6 @@ from scrapy.selector import Selector
 from Crawler.items import NewsItem, CommentItem
 from Crawler.utils import *
 import re
-import Crawler.settings
-import scrapy
 import requests
 import json
 
@@ -18,8 +16,6 @@ def get_sina_allow_url():
     """
     start_time = NOW - datetime.timedelta(END_DAY)
     allow_url = list()
-    if END_DAY < 21:
-        return get_allow_date('%Y-%m-%d')
     if start_time.year == NOW.year:
         if start_time.month == NOW.month:
             for x in range(start_time.day, NOW.day + 1):
@@ -35,8 +31,8 @@ def get_sina_allow_url():
     return allow_url
 
 
-class SinaNewsSpider(CrawlSpider):
-    name = "sina_news"
+class SinaCommentSpider(CrawlSpider):
+    name = "sina_comments"
     allowed_domains = [
         "www.sina.com.cn",
         "news.sina.com.cn",
@@ -118,44 +114,15 @@ class SinaNewsSpider(CrawlSpider):
         sel = Selector(response)
         url = response.request.url
         if re.match(r'.*?sina.com.*?/\d{4}-\d{2}-\d{2}/.*?', url):
-            content = response.xpath('//*[@id="artibody"]//p//text() | //*[@id="article"]//p//text()').extract()
-            # 移除编辑
-            editor = response.xpath('//*[@class="article-editor"]/text()').extract_first()
-            if editor:
-                content.remove(editor)
-            publish_time = sel.re(r'\d{4}年\d{2}月\d{2}日.{0,1}\d{2}:\d{2}')[0]
-            if ' ' in publish_time:
-                publish_time = publish_time.replace(' ', '')
-
-            if content:
-                item = NewsItem(
-                    domainname='http://sina.com.cn',
-                    chinesename='新浪网',
-                    url=sel.root.base,
-                    title=sel.css('#artibodyTitle::text, #main_title::text, .main-title::text').extract_first(),
-                    subtitle=sel.css('.sub::text').extract_first(),
-                    language='中文',
-                    encodingtype='utf-8',
-                    corpustype='网络',
-                    timeofpublish=publish_time,
-                    content=''.join(content),
-                    source=sel.xpath(
-                        '//*[@data-sudaclick="media_name"]/text() | //*[@data-sudaclick="media_name"]/a/text() | //*[@id="top_bar"]/div/div[2]/span[2]/a/text()').extract_first(),
-                    author=None
-                )
-                item = judge_time_news(item)
-                if item:
-                    yield item
-                    if GET_COMMENTS:
-                        news_id = re.search("comment_id:(.*?)\"", response.text)
-                        channel = re.search("comment_channel:(.*?);", response.text)
-                        if news_id:
-                            news_id = news_id.group(1)
-                        if channel:
-                            channel = channel.group(1)
-                        comment = SinaNewsSpider.get_comments(url, channel, news_id)
-                        if comment:
-                            yield comment
+            news_id = re.search("comment_id:(.*?)\"", response.text)
+            channel = re.search("comment_channel:(.*?);", response.text)
+            if news_id:
+                news_id = news_id.group(1)
+            if channel:
+                channel = channel.group(1)
+            comment = SinaNewsSpider.get_comments(url, channel, news_id)
+            if comment:
+                yield comment
 
 
 

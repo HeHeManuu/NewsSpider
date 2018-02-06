@@ -3,7 +3,7 @@ from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.selector import Selector
 from Crawler.items import NewsItem
-from Crawler.util import *
+from Crawler.utils import *
 import re
 import Crawler.settings
 import scrapy
@@ -16,6 +16,8 @@ def get_xin_allow_url():
     """
     start_time = NOW - datetime.timedelta(END_DAY)
     allow_url = list()
+    if END_DAY < 21:
+        return get_allow_date('%Y-%m/%d')
     if start_time.year == NOW.year:
         if start_time.month == NOW.month:
             for x in range(start_time.day, NOW.day + 1):
@@ -49,7 +51,8 @@ class XinHuaNewsSpider(CrawlSpider):
         r'.*?.comments.*?',
         r'.*?.auto.*?',
         r'.*?.forum.*?',
-        r'.*?.caipiao.*?'
+        r'.*?.caipiao.*?',
+        r'.*?fashion.*?'
     ]
     deny_urls_news = [
         r'.*?.photo.*?',

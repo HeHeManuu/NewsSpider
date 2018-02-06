@@ -18,8 +18,6 @@ def get_QQ_allow_url():
     """
     start_time = NOW - datetime.timedelta(END_DAY)
     allow_url = list()
-    if END_DAY < 21:
-        return get_allow_date('%Y%m%d')
     if start_time.year == NOW.year:
         if start_time.month == NOW.month:
             for x in range(start_time.day, NOW.day + 1):
@@ -35,8 +33,8 @@ def get_QQ_allow_url():
     return allow_url
 
 
-class QQNewsSpider(CrawlSpider):
-    name = "qq_news"
+class QQCommentSpider(CrawlSpider):
+    name = "qq_comments"
     allowed_domains = ["news.qq.com",
                        "finance.qq.com",
                        "edu.qq.com",
@@ -74,42 +72,14 @@ class QQNewsSpider(CrawlSpider):
 
     @staticmethod
     def parse_item(response):
-        sel = Selector(response)
         url = response.request.url
         if re.match(r'.*?qq.com/a/\d+/.*?', url) and '#p' not in url:
-            content = response.xpath(
-                '//*[@id="Cnt-Main-Article-QQ"]/p/text() | //*[@id="Cnt-Main-Article-QQ"]/p/strong/text() | //*[@id="contTxt"]/p/text()').extract()
-            if content:
-                item = NewsItem(
-                    domainname='http://qq.com',
-                    chinesename='腾讯网',
-                    url=sel.root.base,
-                    title=sel.css(
-                        '#Main-Article-QQ > div > div.qq_main > div.qq_article > div.hd > h1::text, .LEFT > h1::text, .hd > h1::text').extract_first(),
-                    subtitle=sel.css('.sub::text').extract_first(),
-                    language='中文',
-                    encodingtype='utf-8',
-                    corpustype='网络',
-                    timeofpublish=sel.re(
-                        r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}')[0],
-                    content=''.join(content),
-                    source=sel.css(
-                        '#Main-Article-QQ > div > div.qq_main > div.qq_article > div.hd > div > div.a_Info > span.a_source::text,#Main-Article-QQ > div > div.qq_main > div.qq_article > div.hd > div > div.a_Info > span.a_source > a::text').extract_first(),
-                    author=sel.css('p.author::text').extract_first()
-                )
-                item = judge_time_news(item)
-                if item:
-                    yield item
-                    if GET_COMMENTS:
-                        news_id = re.search("cmt_id = ([\\d]*?);", response.text)
-                        if news_id:
-                            news_id = news_id.group(1)
-                        else:
-                            news_id = re.search(r"cmt_id=\'([\\d]*?)\'", response.text).group(1)
-
-                        comment = QQNewsSpider.get_comments(url, news_id)
-                        if comment:
-                            yield comment
+            news_id = re.search("cmt_id = ([\\d]*?);", response.text)
+            if news_id:
+                news_id = news_id.group(1)
+            comment = QQNewsSpider.get_comments(url, news_id)
+            if comment:
+                yield comment
 
     @staticmethod
     def get_comments(news_url, news_id):

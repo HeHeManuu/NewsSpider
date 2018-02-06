@@ -3,7 +3,7 @@ from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.selector import Selector
 from Crawler.items import NewsItem
-from Crawler.util import *
+from Crawler.utils import *
 import re
 import Crawler.settings
 import scrapy
@@ -16,6 +16,8 @@ def get_people_allow_url():
     """
     start_time = NOW - datetime.timedelta(END_DAY)
     allow_url = list()
+    if END_DAY < 21:
+        return get_allow_date('%Y/%m%d')
     if start_time.year == NOW.year:
         if start_time.month == NOW.month:
             for x in range(start_time.day, NOW.day + 1):
@@ -43,19 +45,23 @@ class PeopleNewsSpider(CrawlSpider):
     ]
 
     start_urls = [
-        # 'http://people.com.cn',
-        # "http://politics.people.com.cn",
-        # "http://finance.people.com.cn",
-        # "http://edu.people.com.cn",
-        # "http://sports.people.com.cn",
-        # "http://scitech.people.com.cn",
-        # "http://news.people.com.cn"
-        'http://sports.people.com.cn/n1/2017/1218/c413595-29712245-5.html'
+        'http://people.com.cn',
+        "http://politics.people.com.cn",
+        "http://finance.people.com.cn",
+        "http://edu.people.com.cn",
+        "http://sports.people.com.cn",
+        "http://scitech.people.com.cn",
+        "http://news.people.com.cn",
+        'http://news.people.com.cn/GB/28053/index.html'
+    ]
+    deny_domains = [
+        "kaoshi.edu.people.com.cn",
+        'data.sports.people.com.cn'
     ]
 
     rules = (
-        Rule(LinkExtractor(allow=".*?people.com.cn.*?", deny=r'.*?people.com.cn.*?/\d{4}/\d{4}/.*?'), follow=True),
-        Rule(LinkExtractor(allow=get_people_allow_url()), callback="parse_item", follow=True)
+        Rule(LinkExtractor(allow=".*?people.com.cn.*?", deny=r'.*?people.com.cn.*?/\d{4}/\d{4}/.*?', deny_domains=deny_domains), follow=True),
+        Rule(LinkExtractor(allow=get_people_allow_url(), deny_domains=deny_domains), callback="parse_item", follow=True)
     )
 
     @staticmethod
@@ -64,7 +70,7 @@ class PeopleNewsSpider(CrawlSpider):
         url = response.request.url
         news_label = url.split('/')[-1].split('.')[0]
         if re.match(r'.*?people.com.cn.*?/\d+/\d+/.*?', url) and 'BIG' not in url and not re.match(r'.*?-\d$', news_label):
-            content = response.xpath('//*[@id="rwb_zw"]/p/text() | //*[@id="rwb_zw"]/p/strong/text()').extract()
+            content = response.xpath('//*[@id="rwb_zw"]/p/text() | //*[@id="rwb_zw"]/p/strong/text() |//*[@class="pci_c"]/tbody/tr[2]/td/p/text()').extract()
             if content:
                 item = NewsItem(
                     domainname='http://people.com.cn',

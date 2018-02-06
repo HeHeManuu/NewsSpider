@@ -60,8 +60,8 @@ class CrawlerSpiderMiddleware(object):
 import logging
 import random
 from scrapy.downloadermiddlewares.useragent import UserAgentMiddleware
-from Crawler.settings import PROXIES, USER_AGENT_LIST
-from Crawler.util import RedisFactory
+from Crawler.settings import PROXIES, USER_AGENT_LIST, REDIS_NAME
+from Crawler.utils import RedisFactory
 from scrapy.exceptions import IgnoreRequest
 
 
@@ -79,7 +79,7 @@ class MyCustomDownloaderMiddleware(UserAgentMiddleware):
 
 class IngoreRequestMiddleware(object):
     def __init__(self):
-        self.redis = RedisFactory('url')
+        self.redis = RedisFactory(REDIS_NAME)
 
     def process_request(self, request, spider):
         if self.redis.isExit(request.url):

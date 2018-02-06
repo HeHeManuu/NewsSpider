@@ -27,6 +27,21 @@ def judge_time_news(item, end_day=END_DAY):
     return None
 
 
+def get_allow_date(urlscheme, days=END_DAY):
+    """
+    :return: 
+    """
+    now = datetime.datetime.now()
+    start_time = now - datetime.timedelta(days)
+    allow_date = list()
+    d = start_time
+    delta = datetime.timedelta(days=1)
+    while d <= now:
+        allow_date.append('.*?/' + d.strftime(urlscheme) + '/.*?')
+        d += delta
+    return allow_date
+
+
 class RedisFactory(object):
     def __init__(self, name):
         self.Redis = Redis(host='localhost', port=6379, db=0)
@@ -43,11 +58,11 @@ class RedisFactory(object):
         self.Redis.smembers(self.name)
 
     def flush(self):
-        self.Redis.flushall()
+        self.Redis.flushdb()
 
 
 if __name__ == "__main__":
-    fa = RedisFactory("url")
+    fa = RedisFactory('url2')
     print(fa.Redis.scard(fa.name))
     # fa.flush()
     print(fa.Redis.scard(fa.name))

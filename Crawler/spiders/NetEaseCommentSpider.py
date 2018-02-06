@@ -1,10 +1,7 @@
 from scrapy.spiders import CrawlSpider
 from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
-from scrapy.selector import Selector
-from scrapy.http import Request
-from Crawler.items import NewsItem, CommentItem
-from Crawler.utils import judge_time_news, get_allow_date
+from Crawler.items import CommentItem
 from Crawler.settings import *
 import re
 import requests
@@ -18,8 +15,6 @@ def get_163_allow_url():
     """
     start_time = NOW - datetime.timedelta(END_DAY)
     allow_url = list()
-    if END_DAY < 21:
-        return get_allow_date('%y/%m%d')
     if start_time.year == NOW.year:
         if start_time.month == NOW.month:
             for x in range(start_time.day, NOW.day + 1):
@@ -35,8 +30,8 @@ def get_163_allow_url():
     return allow_url
 
 
-class NewsSpider(CrawlSpider):
-    name = "wyxw_news"
+class NetEaseCommentSpider(CrawlSpider):
+    name = "wyxw_comments"
     allowed_domains = ["news.163.com", "sports.163.com", "money.163.com", 'edu.163.com', "tech.163.com", "war.163.com"]
 
     start_urls = [
@@ -68,47 +63,11 @@ class NewsSpider(CrawlSpider):
     )
 
     def parse_item(self, response):
-        sel = Selector(response)
         url = response.request.url
         if re.match(r'.*?163.com.*?/\d+/\d+/.*?', url):
-            content = response.xpath('//*[@id="endText"]//p//text()').extract()
-            need_removes = response.xpath('//*[@id="endText"]//p//style/text()').extract()
-            # 移除原标题
-            otitle = response.xpath('//p[@class="otitle"]/text()').extract_first()
-            if otitle:
-                content.remove(otitle)
-
-            if need_removes:
-                for i, need_remove in enumerate(content):
-                    if need_remove.startswith('\n\t') or need_remove.count('=') > 6:  # 将可能出现的视频页面乱码去除
-                        content[i] = ''
-            title = sel.css('#epContentLeft > h1::text').extract_first()
-            if not title:
-                title = sel.css('head > title::text').extract_first()
-                index = title.find('_')
-                title = title[:index]
-            if content:
-                item = NewsItem(
-                    domainname='http://news.163.com',
-                    chinesename='网易新闻',
-                    url=sel.root.base,
-                    title=title,
-                    language='中文',
-                    encodingtype='utf-8',
-                    corpustype='网络',
-                    timeofpublish=sel.re(
-                        r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}')[0],
-                    content=''.join(content),
-                    source=sel.css('#ne_article_source::text').extract_first(),
-                    author=sel.css('div.author_txt > span.name::text').extract_first()
-                )
-                item = judge_time_news(item)
-                if item:
-                    yield item
-                    if GET_COMMENTS:
-                        comment = self.get_comments(url)
-                        if comment:
-                            yield comment
+            comment = self.get_comments(url)
+            if comment:
+                yield comment
 
     def get_comments(self, news_url):
         s1 = 'http://comment.news.163.com/api/v1/products/a2869674571f77b5a0867c3d71db5856/threads/'
@@ -118,11 +77,13 @@ class NewsSpider(CrawlSpider):
         s = s1 + news_id + s2
 
         all_comments = []
+        sess = requests.Session()
+        sess.headers.update({'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'})
 
         offset, limit = 0, 40
         while offset < limit:
             url = s + str(offset) + s3 + str(40)
-            res = requests.get(url=url).text
+            res = sess.get(url=url).text
             if res is None:
                 break
             data = json.loads(res)

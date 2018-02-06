@@ -3,7 +3,7 @@ from scrapy.spiders import Rule
 from scrapy.linkextractors import LinkExtractor
 from scrapy.selector import Selector
 from Crawler.items import NewsItem
-from Crawler.util import *
+from Crawler.utils import *
 import re
 import Crawler.settings
 import scrapy
