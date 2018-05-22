@@ -77,7 +77,7 @@ class QQCommentSpider(CrawlSpider):
             news_id = re.search("cmt_id = ([\\d]*?);", response.text)
             if news_id:
                 news_id = news_id.group(1)
-            comment = QQNewsSpider.get_comments(url, news_id)
+            comment = QQCommentSpider.get_comments(url, news_id)
             if comment:
                 yield comment
 

@@ -63,13 +63,22 @@ class QQNewsSpider(CrawlSpider):
     ]
     deny_domains = [
         "view.news.qq.com",
-        'app.edu.qq.com'
+        'app.edu.qq.com',
+        'download.tech.qq.com',
+        'bbs.news.qq.com'
+    ]
+    deny_urls = [
+        r'.*?qq.com/a/\d{8}/.*?',
+        r'.*?\?tags=.*?'
+    ]
+    deny_urls_news = [
+        r'.*?\?tags=.*?'
     ]
 
     rules = (
-        Rule(LinkExtractor(allow=".*?qq.com.*?", deny=r'.*?qq.com/a/\d{8}/.*?', deny_domains=deny_domains),
+        Rule(LinkExtractor(allow=".*?qq.com.*?", deny=deny_urls, deny_domains=deny_domains),
              follow=True),
-        Rule(LinkExtractor(allow=get_QQ_allow_url(), deny_domains=deny_domains), callback="parse_item", follow=True)
+        Rule(LinkExtractor(allow=get_QQ_allow_url(), deny_domains=deny_domains, deny=deny_urls_news), callback="parse_item", follow=True)
     )
 
     @staticmethod
@@ -105,7 +114,9 @@ class QQNewsSpider(CrawlSpider):
                         if news_id:
                             news_id = news_id.group(1)
                         else:
-                            news_id = re.search(r"cmt_id=\'([\\d]*?)\'", response.text).group(1)
+                            news_id = re.search("cmt_id='([\\d]*?)'", response.text)
+                            if news_id:
+                                news_id = news_id.group(1)
 
                         comment = QQNewsSpider.get_comments(url, news_id)
                         if comment:

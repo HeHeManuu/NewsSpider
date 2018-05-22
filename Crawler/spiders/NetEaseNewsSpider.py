@@ -127,6 +127,8 @@ class NewsSpider(CrawlSpider):
                 break
             data = json.loads(res)
             if offset == 0:
+                if 'newListSize' not in data:
+                    break
                 limit = data['newListSize']
             for k, v in data['comments'].items():
                 per_comment = dict()
