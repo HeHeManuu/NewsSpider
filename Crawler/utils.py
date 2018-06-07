@@ -27,6 +27,33 @@ def judge_time_news(item, end_day=END_DAY):
     return None
 
 
+def judge_time_tibet_news(item, end_day=END_DAY):
+    """
+    判断爬取的新闻是否符合时间约束
+    :param item:
+    :param end_day:
+    :return: item or None
+    """
+    news_time = item.get("timeofpublish", None)
+    if item.get("chinesename") == "tbtibet":
+        news_time = news_time + "00:00:00"
+
+    if item.get("chinesename") == "tibetxinhua":
+        news_time = news_time + "00:00:00"
+
+    if news_time:
+        if '年' in news_time:
+            struct_time = datetime.datetime.strptime(news_time, "%Y年%m月%d日%H:%M")
+        else:
+            struct_time = datetime.datetime.strptime(news_time, "%Y-%m-%d%H:%M:%S")
+        subtime = (NOW-struct_time).days
+        if subtime < end_day:
+            return item
+        else:
+            return None
+    return None
+
+
 def get_allow_date(urlscheme, days=END_DAY):
     """
     :return: 
@@ -62,7 +89,7 @@ class RedisFactory(object):
 
 
 if __name__ == "__main__":
-    fa = RedisFactory('url2')
+    fa = RedisFactory('url_tibet')
     print(fa.Redis.scard(fa.name))
-    # fa.flush()
+    #fa.flush()
     print(fa.Redis.scard(fa.name))

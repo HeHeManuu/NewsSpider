@@ -12,12 +12,12 @@ import datetime
 
 BOT_NAME = 'Crawler'
 
-SPIDER_MODULES = ['Crawler.spiders']
+SPIDER_MODULES = ['Crawler.spiders', 'Crawler.zangSpiders']
 # NEWSPIDER_MODULE = 'Crawler.spiders'
 
 
 DEPTH_LIMIT = 9
-DEPTH_PRIORITY = 3
+DEPTH_PRIORITY = 2
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'Crawler (+http://www.yourdomain.com)'
 
@@ -53,7 +53,7 @@ COOKIES_ENABLED = True
 # 设置下载ITEM数量后关闭
 CLOSESPIDER_ITEMCOUNT = 20000
 # 设置指定返回响应数量后停止
-CLOSESPIDER_PAGECOUNT = 100000
+CLOSESPIDER_PAGECOUNT = 1000000
 # CLOSESPIDER_ERRORCOUNT
 # Enable or disable spider middlewares
 # See http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
@@ -79,7 +79,7 @@ DOWNLOADER_MIDDLEWARES = {
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
     'Crawler.pipelines.CrawlerPipeline': 300,
-    'Crawler.pipelines.MongoPipeline': 400,
+    #'Crawler.pipelines.MongoPipeline': 400,
 }
 # LOG_LEVEL = 'INFO'
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -154,7 +154,7 @@ PROXIES = [
     {'ip_port': '122.224.249.122:8088', 'user_pass': ''},
 ]
 
-END_DAY = 20
+END_DAY = 40
 # 爬取新闻的×天前的相对时间，默认当天凌晨。也就是爬取当天凌晨的×天前的新闻
 END_NOW = datetime.datetime.combine(datetime.date.today(), datetime.time.min)  # 当天0点
 # END_NOW = datetime.datetime.now() #当时
@@ -162,9 +162,12 @@ NOW = datetime.datetime.now()  # 现在时间的格式
 SAVE_PATH = "H:\DATA\DATA\\"
 # 新华网，人民网，新浪，网易，腾讯网，中新闻网
 
-GET_COMMENTS = True
+
+TIBET_SAVE_PATH = "H:\DATA\Tibetan_DATA\\"
+GET_COMMENTS = False
 # comments { content, vote, against, location, time }
 # url 和 url2 直接替换进行
 REDIS_NAME = 'url'
+REDIS_NAME_TIBET = 'url_tibet'
 
 

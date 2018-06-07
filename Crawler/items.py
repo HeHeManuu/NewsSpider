@@ -37,6 +37,25 @@ class NewsItem(scrapy.Item):
     pass
 
 
+class TibetNewsItem(scrapy.Item):
+    domainname = scrapy.Field()
+    chinesename = scrapy.Field()
+    language = scrapy.Field()
+    encodingtype = scrapy.Field()
+    corpustype = scrapy.Field()
+    filename = scrapy.Field()
+    title = scrapy.Field()
+    subtitle = scrapy.Field()
+    author = scrapy.Field()
+    timeofpublish = scrapy.Field()
+    timeofdownload = scrapy.Field()
+    localaddress = scrapy.Field()
+    url = scrapy.Field()
+    content = scrapy.Field()
+    source = scrapy.Field()
+    classification = scrapy.Field()
+    pass
+
 class CommentItem(scrapy.Item):
     """评论相关
     comments { content, vote, against, location, time, nick }

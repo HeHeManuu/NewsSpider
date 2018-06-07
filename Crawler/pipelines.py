@@ -11,7 +11,7 @@ import os
 import pymongo
 from Crawler.utils import RedisFactory
 from Crawler.items import TweetsItem, InformationItem, FollowsItem, FansItem
-from Crawler.items import NewsItem, CommentItem
+from Crawler.items import NewsItem, CommentItem, TibetNewsItem
 
 
 class CrawlerPipeline(object):
@@ -19,6 +19,7 @@ class CrawlerPipeline(object):
         # self.file = open('items.jl', 'w', encoding='utf-8')
         self.url_seen = set()
         self.redis = RedisFactory(REDIS_NAME)
+        self.redis_tibet = RedisFactory(REDIS_NAME_TIBET)
 
     def process_item(self, item, spider):
         if isinstance(item, NewsItem):
@@ -47,10 +48,45 @@ class CrawlerPipeline(object):
                 file1 = open(path + filename, 'w', encoding='utf-8')
                 file1.write(line)
                 file1.close()
+        elif isinstance(item, TibetNewsItem):
+            if item['url'] in self.url_seen:
+                raise print("Duplicate item found: %s" % item)
+            else:
+                self.url_seen.add(item['url'])
+                self.redis_tibet.insert(item['url'])
+                line = json.dumps(dict(item), ensure_ascii=False) + "\n"
+                # self.file.write(line)
+                # 写入文档中
+                path = 'Tibetan\\'  # +item['domainname'].replace('http://', '')+'\\'
+                txt_path = 'txt\\' + path
+                time_str = item['timeofpublish'][:10]
+                if '年' in time_str:
+                    time_str = datetime.datetime.strptime(item['timeofpublish'], "%Y年%m月%d日%H:%M").strftime('%Y-%m-%d')
+                m = re.search(r'\d{4}-\d{2}-\d{2}', time_str)
+                if m:
+                    time_str = m.group(0)
+                time_path = time_str.replace('-', '\\')
+                path = TIBET_SAVE_PATH + path + time_path + '\\'
+                if not os.path.exists(path):
+                    os.makedirs(path)
+                url = item['url'].replace('http:/', '_').replace('/', '_').replace(':', '')
+                filename = '0_' + spider.name + '_' + time_str + url + '.json'
+                file1 = open(path + filename, 'w', encoding='utf-8')
+                file1.write(line)
+                file1.close()
+
+                txt_path = TIBET_SAVE_PATH + txt_path + time_path + '\\'
+                if not os.path.exists(txt_path):
+                    os.makedirs(txt_path)
+                txt_filename = filename.replace('json', 'txt')
+                content = item['title'] + '\n' + item['content']
+                file2 = open(txt_path + txt_filename, 'w', encoding='utf-8')
+                file2.write(content)
+                file2.close()
         return item
 
     def close_spider(self, spider):
-        self.file.close()
+        pass
 
 
 class MongoDBPipleline(object):
